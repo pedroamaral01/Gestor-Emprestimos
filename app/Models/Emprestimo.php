@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Emprestimo extends Model
 {
@@ -31,6 +33,7 @@ class Emprestimo extends Model
      * Atributos que podem ser preenchidos em massa
      */
     protected $fillable = [
+        'user_id',
         'valor_principal',
         'valor_total',
         'parcelas',
@@ -42,7 +45,6 @@ class Emprestimo extends Model
         'status',
         'finalidade',
         'cliente_id',
-        'responsavel_id'
     ];
 
     /**
@@ -64,13 +66,9 @@ class Emprestimo extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
-
-    /**
-     * Relacionamento com o responsável (usuário que aprovou)
-     */
-    public function responsavel()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'responsavel_id');
+        return $this->belongsTo(User::class);
     }
 
     /**

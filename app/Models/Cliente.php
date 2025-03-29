@@ -15,10 +15,21 @@ class Cliente extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
+        'user_id',
         'nome',
         'telefone',
         'renda',
         'cpf',
         'profissao'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function emprestimos()
+    {
+        return $this->hasMany(Emprestimo::class);
+    }
 }

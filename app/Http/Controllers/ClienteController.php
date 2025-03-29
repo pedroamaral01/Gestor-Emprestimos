@@ -4,62 +4,76 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CriaClienteRequest;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $model;
+
+    public function __construct()
     {
-        //
+        $this->model = Cliente::class;
+        $this->middleware('auth');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // public function index()
+    // {
+    //     $clientes = Auth::user()->clientes()->latest()->paginate(10);
+    //     return view('clientes.index', compact('clientes'));
+    // }
+
     public function create()
     {
-        //
+        return view('pages.cadastrarcliente');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(CriaClienteRequest $request)
     {
-        //
+        try {
+
+            $nomeCompleto = $request->nome . ' ' . $request->sobrenome;
+
+            $data = [
+                'nome' => $nomeCompleto,
+                'cpf' => $request->cpf,
+                'telefone' => $request->telefone,
+                'renda' => $request->renda,
+                'profissao' => $request->profissao,
+                'user_id' => Auth::id()
+            ];
+
+            $cliente = new $this->model();
+            $cliente->fill($data);
+            $cliente->save();
+
+            return redirect()->route('dashboard')
+                ->with('success', 'Cliente cadastrado com sucesso!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Erro ao cadastrar cliente: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
+    // Métodos adicionais seguindo o mesmo padrão
+    public function find($id)
     {
-        //
+        return $this->model::find($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cliente $cliente)
+    public function findAll()
     {
-        //
+        return $this->model::all();
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Cliente $cliente)
+    public function update(array $data, $id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cliente $cliente)
-    {
-        //
+        $cliente = $this->model::find($id);
+        if ($cliente) {
+            $cliente->fill($data);
+            $cliente->save();
+            return $cliente;
+        }
+        return null;
     }
 }
