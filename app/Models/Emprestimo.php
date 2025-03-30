@@ -64,11 +64,11 @@ class Emprestimo extends Model
      */
     public function cliente()
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(User::class, 'cliente_id', 'id');
     }
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**

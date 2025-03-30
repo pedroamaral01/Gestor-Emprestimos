@@ -2,25 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cliente;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\ClienteRepository;
 use App\Http\Requests\CriaClienteRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
-    protected $model;
-
-    public function __construct()
-    {
-        $this->model = Cliente::class;
-    }
-
-    // public function index()
-    // {
-    //     $clientes = Auth::user()->clientes()->latest()->paginate(10);
-    //     return view('clientes.index', compact('clientes'));
-    // }
+    public function __construct(
+        private ClienteRepository $clienteRepository
+    ) {}
 
     public function create()
     {
@@ -30,11 +20,8 @@ class ClienteController extends Controller
     public function store(CriaClienteRequest $request)
     {
         try {
-
-            $nomeCompleto = $request->nome . ' ' . $request->sobrenome;
-
             $data = [
-                'nome' => $nomeCompleto,
+                'nome' => $request->nome . ' ' . $request->sobrenome,
                 'cpf' => $request->cpf,
                 'telefone' => $request->telefone,
                 'renda' => $request->renda,
@@ -42,9 +29,7 @@ class ClienteController extends Controller
                 'user_id' => Auth::id()
             ];
 
-            $cliente = new $this->model();
-            $cliente->fill($data);
-            $cliente->save();
+            $this->clienteRepository->create($data);
 
             return redirect()->route('dashboard')
                 ->with('success', 'Cliente cadastrado com sucesso!');
@@ -52,26 +37,5 @@ class ClienteController extends Controller
             return back()->withInput()
                 ->with('error', 'Erro ao cadastrar cliente. Por favor, tente novamente.');
         }
-    }
-
-    public function find($id)
-    {
-        return $this->model::find($id);
-    }
-
-    public function findAll()
-    {
-        return $this->model::all();
-    }
-
-    public function update(array $data, $id)
-    {
-        $cliente = $this->model::find($id);
-        if ($cliente) {
-            $cliente->fill($data);
-            $cliente->save();
-            return $cliente;
-        }
-        return null;
     }
 }

@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Profissão</label>
+                        <label class="form-label">Profissão *</label>
                         <input type="text" class="form-control {{ $errors->has('profissao') ? 'is-invalid' : '' }}"
                             name="profissao" placeholder="Profissão" value="{{ old('profissao') }}">
                         @error('profissao')
