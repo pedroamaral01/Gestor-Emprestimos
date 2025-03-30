@@ -14,7 +14,6 @@ class ClienteController extends Controller
     public function __construct()
     {
         $this->model = Cliente::class;
-        $this->middleware('auth');
     }
 
     // public function index()
@@ -25,7 +24,7 @@ class ClienteController extends Controller
 
     public function create()
     {
-        return view('pages.cadastrarcliente');
+        return view('pages.cadastrar-cliente');
     }
 
     public function store(CriaClienteRequest $request)
@@ -51,11 +50,10 @@ class ClienteController extends Controller
                 ->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Erro ao cadastrar cliente: ' . $e->getMessage());
+                ->with('error', 'Erro ao cadastrar cliente. Por favor, tente novamente.');
         }
     }
 
-    // Métodos adicionais seguindo o mesmo padrão
     public function find($id)
     {
         return $this->model::find($id);

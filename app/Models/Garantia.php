@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Garantia extends Model
@@ -39,4 +40,4 @@ class Garantia extends Model
     {
         return self::TIPOS[$this->tipo] ?? 'Desconhecido';
     }
-
+}

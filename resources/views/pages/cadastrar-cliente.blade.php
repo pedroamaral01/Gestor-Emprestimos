@@ -1,6 +1,19 @@
 <x-app-layout>
     <div class="container-fluid d-flex w-75">
         <div class="content flex-grow-1 p-4">
+            @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            @endif
             <div class="shadow">
                 <div>
                     <h3 class="text-center bg-gray-100 p-4">Cadastro Cliente</h3>

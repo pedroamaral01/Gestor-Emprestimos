@@ -27,7 +27,7 @@ class CriaClienteRequest extends FormRequest
             'sobrenome' => 'required|string|max:255',
             'telefone' => 'required|string|max:20',
             'renda' => 'required|numeric|min:0',
-            'cpf' => 'required|string|max:14|unique:clientes,cpf',
+            'cpf' => 'required|string|min:11|max:11|unique:clientes,cpf',
             'profissao' => 'nullable|string|max:255'
         ];
     }
@@ -38,16 +38,12 @@ class CriaClienteRequest extends FormRequest
             'nome.required' => 'O campo nome é obrigatório',
             'sobrenome.required' => 'O campo sobrenome é obrigatório',
             'telefone.required' => 'O campo telefone é obrigatório',
-            'renda.required' => 'O campo renda é obrigatório',
-            'cpf.required' => 'O campo cpf é obrigatório',
+            'renda.required' => 'A renda mensal é obrigatória',
+            'renda.numeric' => 'A renda deve ser um valor numérico',
+            'cpf.required' => 'O CPF é obrigatório',
+            'cpf.size' => 'O CPF deve ter exatamente 11 dígitos',
+            'cpf.unique' => 'Este CPF já está cadastrado',
             'profissao.required' => 'O campo profissão é obrigatório',
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'cpf' => preg_replace('/[^0-9]/', '', $this->cpf),
-        ]);
     }
 }
