@@ -28,6 +28,7 @@
               <div class="card-body">
                 <h5 class="card-title">{{ __("Você está logado!") }}</h5>
                 <a href="{{ route('cliente.create') }}" class="btn btn-primary mt-3">Criar Cliente</a>
+                <a href="{{ route('emprestimo.create') }}" class="btn btn-primary mt-3">Criar Emprestimo<a>
               </div>
             </div>
           </div>

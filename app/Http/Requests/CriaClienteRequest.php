@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CriaClienteRequest extends FormRequest
 {
@@ -27,7 +28,14 @@ class CriaClienteRequest extends FormRequest
             'sobrenome' => 'required|string|max:255',
             'telefone' => 'required|string|max:20',
             'renda' => 'required|numeric|min:0',
-            'cpf' => 'required|string|min:11|max:11|unique:clientes,cpf',
+            'cpf' => [
+                'required',
+                'string',
+                'size:11',
+                Rule::unique('clientes')->where(function ($query) {
+                    return $query->where('user_id', Auth::user()->id);
+                })
+            ],
             'profissao' => 'nullable|string|max:255'
         ];
     }

@@ -10,16 +10,6 @@ class Garantia extends Model
 {
     use HasFactory;
 
-    /**
-     * Os tipos de garantia disponíveis.
-     */
-    public const TIPOS = [
-        'veiculo' => 'Veículo',
-        'imovel' => 'Imóvel',
-        'fiador' => 'Fiador',
-        'outros' => 'Outros'
-    ];
-
     protected $fillable = [
         'emprestimo_id',
         'tipo',
@@ -33,11 +23,6 @@ class Garantia extends Model
 
     public function emprestimo()
     {
-        return $this->belongsTo(Emprestimo::class);
-    }
-
-    public function getTipoFormatadoAttribute()
-    {
-        return self::TIPOS[$this->tipo] ?? 'Desconhecido';
+        return $this->belongsTo(Emprestimo::class, 'emprestimo_id', 'id');
     }
 }

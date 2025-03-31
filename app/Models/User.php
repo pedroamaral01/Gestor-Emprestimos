@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Cliente;
+use App\Models\Emprestimo;
 
 class User extends Authenticatable
 {
@@ -51,5 +52,10 @@ class User extends Authenticatable
     public function clientes(): HasMany
     {
         return $this->hasMany(Cliente::class);
+    }
+
+    public function emprestimos(): HasMany
+    {
+        return $this->hasMany(Emprestimo::class);
     }
 }

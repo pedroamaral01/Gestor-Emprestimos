@@ -9,26 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Emprestimo extends Model
 {
     use HasFactory, SoftDeletes;
-
-    /**
-     * Tipos de juros disponíveis
-     */
-    public const TIPO_JUROS = [
-        'simples' => 'Juros Simples',
-        'composto' => 'Juros Compostos'
-    ];
-
-    /**
-     * Status disponíveis
-     */
-    public const STATUS = [
-        'analise' => 'Em Análise',
-        'ativo' => 'Ativo',
-        'atrasado' => 'Atrasado',
-        'quitado' => 'Quitado',
-        'inadimplente' => 'Inadimplente'
-    ];
-
     /**
      * Atributos que podem ser preenchidos em massa
      */
@@ -59,76 +39,23 @@ class Emprestimo extends Model
         'data_quitação' => 'date'
     ];
 
-    /**
-     * Relacionamento com o cliente
-     */
     public function cliente()
     {
         return $this->belongsTo(User::class, 'cliente_id', 'id');
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    /**
-     * Relacionamento com as parcelas
-     */
     public function parcelas()
     {
         return $this->hasMany(Parcela::class);
     }
 
-    /**
-     * Acessor para status formatado
-     */
-    public function getStatusFormatadoAttribute()
+    public function garantia()
     {
-        return self::STATUS[$this->status] ?? 'Desconhecido';
-    }
-
-    /**
-     * Acessor para tipo de juros formatado
-     */
-    public function getTipoJurosFormatadoAttribute()
-    {
-        return self::TIPO_JUROS[$this->tipo_juros] ?? 'Desconhecido';
-    }
-
-    /**
-     * Escopo para empréstimos ativos
-     */
-    public function scopeAtivos($query)
-    {
-        return $query->where('status', 'ativo');
-    }
-
-    /**
-     * Escopo para empréstimos quitados
-     */
-    public function scopeQuitados($query)
-    {
-        return $query->where('status', 'quitado');
-    }
-
-    /**
-     * Escopo para empréstimos em análise
-     */
-    public function scopeEmAnalise($query)
-    {
-        return $query->where('status', 'analise');
-    }
-
-    /**
-     * Calcula o valor total do empréstimo com juros
-     */
-    public function calcularValorTotal()
-    {
-        if ($this->tipo_juros === 'simples') {
-            return $this->valor_principal * (1 + ($this->taxa_juros_mensal / 100 * $this->parcelas));
-        }
-
-        // Juros compostos
-        return $this->valor_principal * pow(1 + ($this->taxa_juros_mensal / 100), $this->parcelas);
+        return $this->hasMany(Garantia::class);
     }
 }
