@@ -16,12 +16,15 @@ use App\Enums\EmprestimoStatus;
 
 use App\Services\RiscoEmprestimoService;
 use App\Services\CalculaValorTotalService;
+use App\Services\ParcelaService;
 
 use App\Http\Requests\CalculaRiscoRequest;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\CriaEmprestimoRequest;
+
 
 
 class EmprestimoController extends Controller
@@ -32,7 +35,8 @@ class EmprestimoController extends Controller
         private GarantiaRepository $garantiaRepository,
         private ParcelaRepository $parcelaRepository,
         private RiscoEmprestimoService $riscoEmprestimoService,
-        private CalculaValorTotalService $calculaValorTotalService
+        private CalculaValorTotalService $calculaValorTotalService,
+        private ParcelaService $parcelaService
     ) {}
 
 
@@ -75,6 +79,7 @@ class EmprestimoController extends Controller
      */
     public function store(CriaEmprestimoRequest $request)
     {
+        DB::beginTransaction();
 
         try {
             $valor = $request->valor;
@@ -105,6 +110,15 @@ class EmprestimoController extends Controller
 
             $idEmprestimo = $this->emprestimoRepository->create($dadosEmprestimo);
 
+            $parcelas = $this->parcelaService->prepararParcelas(
+                $idEmprestimo,
+                $valorTotal,
+                $qtdParcelas,
+                $request->data_vencimento_primeira_parcela
+            );
+
+            $this->parcelaRepository->createMany($parcelas);
+
             if ($request->garantia_tipo) {
                 $dadosGarantia = [
                     'tipo' => $request->garantia_tipo,
@@ -116,9 +130,12 @@ class EmprestimoController extends Controller
                 $this->garantiaRepository->create($dadosGarantia);
             }
 
+            DB::commit();
+
             return redirect()->route('dashboard')
                 ->with('success', 'Emprestimo cadastrado com sucesso!');
         } catch (\Exception $e) {
+            DB::rollBack();
             return back()->withInput()
                 ->with('error', 'Erro ao cadastrar emprestimo. Por favor, tente novamente.');
         }

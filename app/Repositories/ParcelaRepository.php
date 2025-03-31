@@ -7,12 +7,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ParcelaRepository
 {
-    public function create(array $data): Parcela
+    public function create(array $data)
     {
         return Parcela::create($data);
     }
 
-    public function find(int $id): ?Parcela
+    public function createMany(array $parcelas): bool
+    {
+        return Parcela::insert($parcelas);
+    }
+
+    public function find(int $id)
     {
         return Parcela::find($id);
     }
