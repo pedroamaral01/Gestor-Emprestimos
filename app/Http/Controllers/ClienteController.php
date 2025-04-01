@@ -31,7 +31,7 @@ class ClienteController extends Controller
 
             $this->clienteRepository->create($data);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('pages.dashboard')
                 ->with('success', 'Cliente cadastrado com sucesso!');
         } catch (\Exception $e) {
             return back()->withInput()

@@ -132,7 +132,7 @@ class EmprestimoController extends Controller
 
             DB::commit();
 
-            return redirect()->route('dashboard')
+            return redirect()->route('pages.dashboard')
                 ->with('success', 'Emprestimo cadastrado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -152,9 +152,14 @@ class EmprestimoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Emprestimo $emprestimo)
+    public function edit()
     {
-        //
+        $clientes = $this->clienteRepository->getClientsByUser();
+
+        return view(
+            'pages.pagamento',
+            ['clientes' => $clientes]
+        );
     }
 
     /**

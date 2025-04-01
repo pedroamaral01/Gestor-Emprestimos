@@ -10,7 +10,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('pages.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [EmprestimoController::class, 'create'])->name('emprestimo.create');
         Route::post('/', [EmprestimoController::class, 'store'])->name('emprestimo.store');
         Route::post('/calcular-risco', [EmprestimoController::class, 'calcularRisco'])->name('emprestimo.calcular-risco');
+        Route::get('/pagamento', [EmprestimoController::class, 'edit'])->name('emprestimo.edit');
     });
 });
 
