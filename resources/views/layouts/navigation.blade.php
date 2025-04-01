@@ -1,9 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
-        <!-- Logo -->
-        <!-- <a class="navbar-brand" href="{{ route('dashboard') }}">
-            <x-application-logo style="height: 2.25rem; width: auto; fill: #1f2937;" />
-        </a> -->
+
 
         <!-- Hamburger menu button -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,7 +12,7 @@
             <!-- Left Side Navigation Links -->
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link @if(request()->routeIs('dashboard')) active @endif" href="{{ route('dashboard') }}">
+                    <a class="nav-link @if(request()->routeIs('pages.dashboard')) active @endif" href="{{ route('pages.dashboard') }}">
                         <i class="fas fa-chart-line me-1"></i> {{ __('Dashboard') }}
                     </a>
                 </li>
