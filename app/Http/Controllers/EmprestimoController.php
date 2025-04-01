@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\CriaEmprestimoRequest;
-
+use App\Http\Requests\PagamentoRequest;
 
 
 class EmprestimoController extends Controller
@@ -165,9 +165,26 @@ class EmprestimoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Emprestimo $emprestimo)
+    public function update(PagamentoRequest $request)
     {
-        //
+        try {
+
+            return redirect()->route('pages.dashboard')
+                ->with('success', 'Pagamento efetuado com sucesso!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Erro ao efetuar pagamento. Por favor, tente novamente.');
+        }
+    }
+
+    public function listaEmprestimos(Request $request)
+    {
+        $emprestimos = $this->emprestimoRepository->getEmprestimoByCliente($request->cliente_id);
+
+        return response()->json([
+            'success' => true,
+            'emprestimos' => $emprestimos
+        ]);
     }
 
     /**

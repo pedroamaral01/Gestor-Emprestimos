@@ -11,7 +11,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('pages.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('pages.dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [EmprestimoController::class, 'store'])->name('emprestimo.store');
         Route::post('/calcular-risco', [EmprestimoController::class, 'calcularRisco'])->name('emprestimo.calcular-risco');
         Route::get('/pagamento', [EmprestimoController::class, 'edit'])->name('emprestimo.edit');
+        Route::post('/pagamento', [EmprestimoController::class, 'update'])->name('emprestimo.update');
+        Route::post('/pagamento/lista-emprestimos', [EmprestimoController::class, 'listaEmprestimos'])->name('emprestimo.lista-emprestimos');
     });
 });
 

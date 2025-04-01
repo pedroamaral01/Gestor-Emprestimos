@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class PagamentoRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class PagamentoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -22,7 +23,16 @@ class PagamentoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'cliente_id' => 'required|exists:clientes,id',
+            'valor' => 'required|numeric|min:0.01',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'cliente_id.required' => 'Selecione um cliente',
+            'cliente_id.exists' => 'Cliente inválido',
         ];
     }
 }
