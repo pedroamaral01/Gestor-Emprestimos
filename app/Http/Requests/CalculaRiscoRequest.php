@@ -22,7 +22,7 @@ class CalculaRiscoRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'cliente_id' => 'required|exists:clientes,id',
             'valor' => 'required|numeric|min:0.01',
             'qtd_parcelas' => 'required|integer|min:1',
@@ -31,9 +31,18 @@ class CalculaRiscoRequest extends FormRequest
             'data_contratacao' => 'required|date',
             'data_vencimento_primeira_parcela' => 'required|date|after_or_equal:data_contratacao',
 
-            'garantia_tipo' => 'nullable|required_with:garantia_valor_avaliado|string',
-            'garantia_valor_avaliado' => 'nullable|required_with:garantia_tipo|numeric|min:0'
+            'garantia_tipo' => 'nullable|string',
+            'garantia_valor_avaliado' => 'nullable|numeric|min:0',
         ];
+
+        $anyGarantiaFieldFilled = $this->garantia_tipo || $this->garantia_valor_avaliado;
+
+        if ($anyGarantiaFieldFilled) {
+            $rules['garantia_tipo'] = 'required|string';
+            $rules['garantia_valor_avaliado'] = 'required|numeric|min:0';
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -61,8 +70,8 @@ class CalculaRiscoRequest extends FormRequest
             'data_vencimento_primeira_parcela.date' => 'Data de vencimento inválida',
             'data_vencimento_primeira_parcela.after_or_equal' => 'A data de vencimento deve ser igual ou posterior à data de contratação',
 
-            'garantia_tipo.required_with' => 'Informe o tipo de garantia quando preencher o valor avaliado',
-            'garantia_valor_avaliado.required_with' => 'Informe o valor avaliado quando selecionar o tipo de garantia'
+            'garantia_tipo.required' => 'O tipo de garantia é obrigatório quando informar qualquer dado de garantia',
+            'garantia_valor_avaliado.required' => 'O valor avaliado é obrigatório quando informar qualquer dado de garantia',
         ];
     }
 }
