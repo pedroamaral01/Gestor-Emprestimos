@@ -23,7 +23,7 @@
                     <!-- Cliente -->
                     <div class="col-md-6 mb-3">
                         <label for="cliente_id" class="form-label">Cliente *</label>
-                        <select class="form-select" id="cliente_id" name="cliente_id" required>
+                        <select class="form-select" id="cliente_id" name="cliente_id">
                             <option value="" selected disabled>Selecione um cliente</option>
                             @foreach($clientes as $cliente)
                             <option value="{{ $cliente->id }}">{{ $cliente->nome }}</option>
@@ -42,7 +42,7 @@
                                 <span class="input-group-text">R$</span>
                                 <input type="number" step="0.01"
                                     class="form-control {{ $errors->has('valor') ? 'is-invalid' : '' }}"
-                                    name="valor" placeholder="0,00" value="{{ old('valor') }}" required>
+                                    name="valor" placeholder="0,00" value="{{ old('valor') }}">
                                 @error('valor')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -54,7 +54,7 @@
                             <label class="form-label">Quantidade de Parcelas *</label>
                             <input type="number"
                                 class="form-control {{ $errors->has('qtd_parcelas') ? 'is-invalid' : '' }}"
-                                name="qtd_parcelas" value="{{ old('qtd_parcelas', 1) }}" min="1" required>
+                                name="qtd_parcelas" value="{{ old('qtd_parcelas', 1) }}" min="1">
                             @error('qtd_parcelas')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -70,7 +70,7 @@
                                 <div class="mt-2">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="tipo_juros"
-                                            id="jurosSimples" value="simples" {{ old('tipo_juros') == 'simples' ? 'checked' : '' }} required>
+                                            id="jurosSimples" value="simples" {{ old('tipo_juros') == 'simples' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="jurosSimples">Simples</label>
                                     </div>
                                     <div class="form-check">
@@ -86,7 +86,7 @@
                                 <label for="percentualJuros" class="form-label">Percentual de Juros (%) *</label>
                                 <div class="input-group mt-2">
                                     <input type="number" class="form-control" name="percentual_juros" id="percentualJuros"
-                                        placeholder="0.00" min="0" step="0.01" value="{{ old('percentual_juros') }}" required>
+                                        placeholder="0.00" min="0" step="0.01" value="{{ old('percentual_juros') }}">
                                     <span class="input-group-text">%</span>
                                 </div>
                             </div>
@@ -107,8 +107,7 @@
                             <input type="date"
                                 class="form-control {{ $errors->has('data_contratacao') ? 'is-invalid' : '' }}"
                                 name="data_contratacao"
-                                value="{{ old('data_contratacao', now()->format('Y-m-d')) }}"
-                                required>
+                                value="{{ old('data_contratacao', now()->format('Y-m-d')) }}">
                             @error('data_contratacao')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -120,8 +119,7 @@
                             <input type="date"
                                 class="form-control {{ $errors->has('data_vencimento_primeira_parcela') ? 'is-invalid' : '' }}"
                                 name="data_vencimento_primeira_parcela"
-                                value="{{ old('data_vencimento_primeira_parcela', now()->addDays(30)->format('Y-m-d')) }}"
-                                required>
+                                value="{{ old('data_vencimento_primeira_parcela', now()->addDays(30)->format('Y-m-d')) }}">
                             @error('data_vencimento_primeira_parcela')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -132,13 +130,13 @@
                     <div class="mb-3">
                         <label class="form-label">Finalidade *</label>
                         <textarea class="form-control {{ $errors->has('finalidade') ? 'is-invalid' : '' }}"
-                            name="finalidade" rows="3" required>{{ old('finalidade') }}</textarea>
+                            name="finalidade" rows="3">{{ old('finalidade') }}</textarea>
                         @error('finalidade')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Garantia (Opcional) - Versão sem JavaScript -->
+                    <!-- Garantia (Opcional) -->
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center pe-3 position-relative"
                             data-bs-toggle="collapse"
@@ -146,20 +144,14 @@
                             aria-expanded="false"
                             aria-controls="garantiaCollapse"
                             style="cursor: pointer">
-
                             <h5 class="mb-0 d-flex align-items-center">
                                 <span class="badge bg-secondary me-2">OPCIONAL</span>
                                 Garantia
                             </h5>
-
                             <div class="d-flex align-items-center">
                                 <span class="text-muted small me-2 d-none d-sm-inline">Expandir</span>
                                 <i class="fas fa-chevron-down"></i>
                             </div>
-
-                            <!-- Efeito visual de hover -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-light opacity-0 hover-opacity-10"
-                                style="pointer-events: none; transition: opacity 0.2s ease;"></div>
                         </div>
 
                         <div class="collapse" id="garantiaCollapse">
@@ -167,20 +159,28 @@
                                 <!-- Tipo Garantia -->
                                 <div class="mb-3">
                                     <label class="form-label">Tipo de Garantia</label>
-                                    <select class="form-control" name="garantia_tipo" required>
-                                        <option value="" selected disabled>Selecione...</option>
+                                    <select class="form-control {{ $errors->has('garantia_tipo') ? 'is-invalid' : '' }}"
+                                        name="garantia_tipo">
+                                        <option value="">Selecione...</option>
                                         @foreach($garantia as $key => $value)
                                         <option value="{{ $key }}" {{ old('garantia_tipo') == $key ? 'selected' : '' }}>
                                             {{ $value }}
                                         </option>
                                         @endforeach
                                     </select>
+                                    @error('garantia_tipo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <!-- Descrição Garantia -->
                                 <div class="mb-3">
                                     <label class="form-label">Descrição</label>
-                                    <textarea class="form-control" name="garantia_descricao" rows="2">{{ old('garantia_descricao') }}</textarea>
+                                    <textarea class="form-control {{ $errors->has('garantia_descricao') ? 'is-invalid' : '' }}"
+                                        name="garantia_descricao" rows="2">{{ old('garantia_descricao') }}</textarea>
+                                    @error('garantia_descricao')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <!-- Valor Avaliado -->
@@ -188,8 +188,11 @@
                                     <label class="form-label">Valor Avaliado</label>
                                     <div class="input-group">
                                         <span class="input-group-text">R$</span>
-                                        <input type="number" step="0.01" class="form-control"
+                                        <input type="number" step="0.01" class="form-control {{ $errors->has('garantia_valor_avaliado') ? 'is-invalid' : '' }}"
                                             name="garantia_valor_avaliado" value="{{ old('garantia_valor_avaliado') }}">
+                                        @error('garantia_valor_avaliado')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +201,6 @@
 
                     @push('styles')
                     <style>
-                        /* Estilo puro CSS - sem JavaScript */
                         [data-bs-toggle="collapse"] {
                             transition: background-color 0.2s ease;
                         }
@@ -300,8 +302,7 @@
                             title: 'Resultado da Simulação',
                             html: htmlContent,
                             icon: (response.nivel_risco === 'Alto' || response.nivel_risco === 'Muito Alto') ?
-                                'warning' :
-                                'success',
+                                'warning' : 'success',
                             customClass: {
                                 popup: 'text-left'
                             }
