@@ -159,7 +159,7 @@
             function renderizarEmprestimos(emprestimos) {
                 var lista = $('#lista-emprestimos').empty();
                 emprestimos.forEach(function(emprestimo) {
-                    var valorPrincipal = parseFloat(emprestimo.valor_principal);
+                    var valorEmprestado = parseFloat(emprestimo.valor_emprestado);
                     var valorTotal = parseFloat(emprestimo.valor_total);
                     var taxaJuros = parseFloat(emprestimo.taxa_juros_mensal);
                     var tipoJurosFormatado = emprestimo.tipo_juros === 'simples' ? 'Simples' : 'Composto';
@@ -186,7 +186,7 @@
                         </div>
                         <div class="mt-2">
                             <small>
-                                <strong>Valor Emprestado:</strong> R$ ${valorPrincipal.toFixed(2)} | 
+                                <strong>Valor Emprestado:</strong> R$ ${valorEmprestado.toFixed(2)} | 
                                 <strong>Total:</strong> R$ ${valorTotal.toFixed(2)}
                             </small>
                         </div>

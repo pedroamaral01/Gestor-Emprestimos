@@ -99,7 +99,7 @@ class EmprestimoController extends Controller
 
             $dadosEmprestimo = [
                 'cliente_id' => $request->cliente_id,
-                'valor_principal' => $valor,
+                'valor_emprestado' => $valor,
                 'parcelas' => $qtdParcelas,
                 'tipo_juros' => $tipoJuros,
                 'taxa_juros_mensal' => $percentualJuros,

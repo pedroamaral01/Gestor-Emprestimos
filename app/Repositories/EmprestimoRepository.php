@@ -50,7 +50,7 @@ class EmprestimoRepository
             ->where('status', '!=', EmprestimoStatus::QUITADO)
             ->select([
                 'id',
-                'valor_principal',
+                'valor_emprestado',
                 'valor_total',
                 'parcelas',
                 'taxa_juros_mensal',
