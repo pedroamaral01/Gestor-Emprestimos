@@ -14,7 +14,7 @@ class Emprestimo extends Model
      */
     protected $fillable = [
         'user_id',
-        'valor_principal',
+        'valor_emprestado',
         'valor_total',
         'parcelas',
         'taxa_juros_mensal',
@@ -25,18 +25,6 @@ class Emprestimo extends Model
         'status',
         'finalidade',
         'cliente_id',
-    ];
-
-    /**
-     * Conversões de tipo
-     */
-    protected $casts = [
-        'valor_principal' => 'decimal:2',
-        'valor_total' => 'decimal:2',
-        'taxa_juros_mensal' => 'decimal:2',
-        'data_contratacao' => 'date',
-        'data_vencimento_primeira_parcela' => 'date',
-        'data_quitação' => 'date'
     ];
 
     public function cliente()
