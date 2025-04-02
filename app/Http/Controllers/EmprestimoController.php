@@ -13,18 +13,21 @@ use App\Repositories\ParcelaRepository;
 
 use App\Enums\TipoGarantia;
 use App\Enums\EmprestimoStatus;
+use App\Enums\PagamentoStatus;
 
 use App\Services\RiscoEmprestimoService;
 use App\Services\CalculaValorTotalService;
 use App\Services\ParcelaService;
 
 use App\Http\Requests\CalculaRiscoRequest;
+use App\Http\Requests\PagamentoRequest;
+use App\Http\Requests\CriaEmprestimoRequest;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-use App\Http\Requests\CriaEmprestimoRequest;
-use App\Http\Requests\PagamentoRequest;
+
+
 
 
 class EmprestimoController extends Controller
@@ -169,7 +172,31 @@ class EmprestimoController extends Controller
     {
         try {
 
-            return redirect()->route('pages.dashboard')
+            $dadosParcela = [
+                'status' => PagamentoStatus::PAGO,
+                'data_pagamento' => today()->format('Y-m-d')
+            ];
+
+            if ($request->has('multa_atraso')) {
+                $dadosParcela['multa_atraso'] = $request->multa_atraso;
+            }
+
+            $emprestimoQuitado  = $this->parcelaRepository->update(
+                $request->parcela_id,
+                $request->emprestimo_id,
+                $dadosParcela
+            );
+
+            if ($emprestimoQuitado) {
+                $dadosEmprestimo = [
+                    'status' => EmprestimoStatus::QUITADO,
+                    'data_quitacao' => today()->format('Y-m-d')
+                ];
+
+                $this->emprestimoRepository->update($request->emprestimo_id, $dadosEmprestimo);
+            }
+
+            return back()
                 ->with('success', 'Pagamento efetuado com sucesso!');
         } catch (\Exception $e) {
             return back()->withInput()

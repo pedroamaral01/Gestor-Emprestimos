@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [EmprestimoController::class, 'store'])->name('emprestimo.store');
         Route::post('/calcular-risco', [EmprestimoController::class, 'calcularRisco'])->name('emprestimo.calcular-risco');
         Route::get('/pagamento', [EmprestimoController::class, 'edit'])->name('emprestimo.edit');
-        Route::post('/pagamento', [EmprestimoController::class, 'update'])->name('emprestimo.update');
+        Route::put('/{emprestimo}', [EmprestimoController::class, 'update'])->name('emprestimo.update');
         Route::post('/pagamento/lista-emprestimos', [EmprestimoController::class, 'listaEmprestimos'])->name('emprestimo.lista-emprestimos');
     });
 });

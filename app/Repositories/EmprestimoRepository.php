@@ -27,6 +27,11 @@ class EmprestimoRepository
         return $user->emprestimos()->latest()->paginate(10);
     }
 
+    public function update(int $id, array $data)
+    {
+        return Emprestimo::where('id', $id)->update($data);
+    }
+
     public function getEmprestimoByCliente(int $clienteId)
     {
         return Emprestimo::with(['parcelas' => function ($query) {

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Parcela;
+use App\Enums\PagamentoStatus;
 use Illuminate\Support\Facades\Auth;
 
 class ParcelaRepository
@@ -20,5 +21,20 @@ class ParcelaRepository
     public function find(int $id)
     {
         return Parcela::find($id);
+    }
+
+    public function update(int $idParcela, int $idEmprestimo, array $data)
+    {
+        $updated = Parcela::where('id', $idParcela)->update($data);
+
+        if (!$updated) {
+            return false;
+        }
+
+        $parcelasPendentes = Parcela::where('emprestimo_id', $idEmprestimo)
+            ->where('status', '!=', PagamentoStatus::PAGO)
+            ->count();
+
+        return $parcelasPendentes == 0;
     }
 }

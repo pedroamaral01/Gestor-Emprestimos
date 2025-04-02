@@ -23,16 +23,20 @@ class PagamentoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cliente_id' => 'required|exists:clientes,id',
-            'valor' => 'required|numeric|min:0.01',
+            'parcela_id' => 'required|exists:parcelas,id',
+            'emprestimo_id' => 'required|exists:emprestimos,id',
+            'multa_atraso' => 'nullable|numeric',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'cliente_id.required' => 'Selecione um cliente',
-            'cliente_id.exists' => 'Cliente inválido',
+            'parcela_id.required' => 'Selecione uma parcela',
+            'parcela_id.exists' => 'Parcela inválida',
+            'emprestimo_id.required' => 'Selecione um empréstimo',
+            'emprestimo_id.exists' => 'Empréstimo inválido',
+            'multa_atraso.numeric' => 'Multa deve ser um valor numérico',
         ];
     }
 }
