@@ -36,7 +36,7 @@ class CriaClienteRequest extends FormRequest
                     return $query->where('user_id', Auth::user()->id);
                 })
             ],
-            'profissao' => 'nullable|string|max:255'
+            'profissao' => 'required|string|max:255'
         ];
     }
 
