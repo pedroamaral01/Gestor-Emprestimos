@@ -32,33 +32,42 @@ class EmprestimoRepository
         return Emprestimo::where('id', $id)->update($data);
     }
 
-    public function getEmprestimoByCliente(int $clienteId)
-    {
-        return Emprestimo::with(['parcelas' => function ($query) {
-            $query->where('status', '!=', PagamentoStatus::PAGO)
-                ->select([
-                    'id',
-                    'emprestimo_id',
-                    'numero_parcela',
-                    'valor_parcela',
-                    'data_vencimento',
-                    'status',
-                ])
-                ->orderBy('numero_parcela', 'asc');
-        }])
-            ->where('cliente_id', $clienteId)
-            ->where('status', '!=', EmprestimoStatus::QUITADO)
-            ->select([
+    public function getEmprestimoByClientes(
+        array $clientesIds,
+        ?bool $somenteNaoQuitados = null
+    ) {
+        return Emprestimo::with(['parcelas' => function ($query) use ($somenteNaoQuitados) {
+            if ($somenteNaoQuitados) {
+                $query->where('status', '!=', PagamentoStatus::PAGO);
+            }
+            $query->select([
                 'id',
-                'valor_emprestado',
-                'valor_total',
-                'parcelas',
-                'taxa_juros_mensal',
-                'tipo_juros',
-                'data_contratacao',
+                'emprestimo_id',
+                'numero_parcela',
+                'valor_parcela',
+                'data_vencimento',
                 'status',
             ])
-            ->orderBy('data_contratacao', 'desc')
+                ->orderBy('numero_parcela', 'asc');
+        }])
+            ->join('clientes', 'emprestimos.cliente_id', '=', 'clientes.id')
+            ->whereIn('emprestimos.cliente_id', $clientesIds)
+            ->when($somenteNaoQuitados, function ($query) {
+                $query->where('emprestimos.status', '!=', EmprestimoStatus::QUITADO);
+            })
+            ->select([
+                'emprestimos.id',
+                'emprestimos.cliente_id',
+                'clientes.nome as cliente_nome',
+                'emprestimos.valor_emprestado',
+                'emprestimos.valor_total',
+                'emprestimos.parcelas',
+                'emprestimos.taxa_juros_mensal',
+                'emprestimos.tipo_juros',
+                'emprestimos.data_contratacao',
+                'emprestimos.status',
+            ])
+            ->orderBy('emprestimos.data_contratacao', 'desc')
             ->get();
     }
 }
