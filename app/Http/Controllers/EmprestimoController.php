@@ -104,7 +104,6 @@ class EmprestimoController extends Controller
                 'tipo_juros' => $tipoJuros,
                 'taxa_juros_mensal' => $percentualJuros,
                 'data_contratacao' => $request->data_contratacao,
-                'data_vencimento_primeira_parcela' => $request->data_vencimento_primeira_parcela,
                 'status' => EmprestimoStatus::ATIVO,
                 'finalidade' => $request->finalidade,
                 'valor_total' => $valorTotal,

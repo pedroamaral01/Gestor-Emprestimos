@@ -20,7 +20,6 @@ class Emprestimo extends Model
         'taxa_juros_mensal',
         'tipo_juros',
         'data_contratacao',
-        'data_vencimento_primeira_parcela',
         'data_quitação',
         'status',
         'finalidade',
