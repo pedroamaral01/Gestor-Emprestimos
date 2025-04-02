@@ -101,6 +101,7 @@
                     type: "POST",
                     data: {
                         cliente_id: clienteId,
+                        somente_nao_quitados: true,
                         _token: "{{ csrf_token() }}"
                     },
                     beforeSend: function() {

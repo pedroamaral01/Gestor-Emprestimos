@@ -48,7 +48,12 @@ class EmprestimoController extends Controller
      */
     public function index()
     {
-        //
+        return view(
+            'pages.dashboard',
+            [
+                'clientes' => $this->clienteRepository->getClientsByUser()
+            ]
+        );
     }
 
     /**
@@ -205,7 +210,7 @@ class EmprestimoController extends Controller
 
     public function listaEmprestimos(Request $request)
     {
-        $emprestimos = $this->emprestimoRepository->getEmprestimoByCliente($request->cliente_id);
+        $emprestimos = $this->emprestimoRepository->getEmprestimoByClientes([$request->cliente_id], $request->somente_nao_quitados);
 
         return response()->json([
             'success' => true,
