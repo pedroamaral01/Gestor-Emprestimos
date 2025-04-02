@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid d-flex w-75">
+    <div class="container-fluid">
         <div class="content flex-grow-1 p-4">
             @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show">
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <!-- Modal de pagamento-->
+    <!-- Modal de pagamento (agora único) -->
     <div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -59,12 +59,11 @@
                     <h5 class="modal-title">Confirmar Pagamento</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="formPagar" method="POST" action="">
+                <form id="formPagar" method="POST">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="emprestimo_id" id="emprestimo_id">
                     <input type="hidden" name="parcela_id" id="parcela_id">
-
+                    <input type="hidden" name="emprestimo_id" id="emprestimo_id">
                     <div class="modal-body">
                         <div class="mb-3" id="multaContainer" style="display: none;">
                             <label for="multa_atraso" class="form-label">Multa por Atraso (R$)</label>
@@ -84,38 +83,6 @@
     <script>
         $(document).ready(function() {
             var responseData = null;
-
-            if ($('#modalPagar').length === 0) {
-                $('body').append(`
-                <div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Confirmar Pagamento</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form id="formPagar" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="parcela_id" id="parcela_id">
-                                <input type="hidden" name="emprestimo_id" id="emprestimo_id">
-                                <div class="modal-body">
-                                    <div class="mb-3" id="multaContainer" style="display: none;">
-                                        <label for="multa_atraso" class="form-label">Multa por Atraso (R$)</label>
-                                        <input type="number" step="0.01" class="form-control" name="multa_atraso" id="multa_atraso" min="0">
-                                    </div>
-                                    <p>Tem certeza que deseja registrar o pagamento desta parcela?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary">Confirmar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            `);
-            }
 
             $('#cliente_id').change(function() {
                 var clienteId = $(this).val();
@@ -276,11 +243,9 @@
                 $('#emprestimo_id').val(emprestimoId);
                 $('#multa_atraso').val('');
 
-                $('#formPagar').attr('action', `/emprestimo/${emprestimoId}`);
-
+                $('#formPagar').attr('action', "{{ route('emprestimo.update', ['emprestimo' => ':id']) }}".replace(':id', emprestimoId));
 
                 $('#multaContainer').toggle(statusParcela === 'atrasado');
-
                 var modal = new bootstrap.Modal(document.getElementById('modalPagar'));
                 modal.show();
             });
@@ -292,15 +257,16 @@
                 submitBtn.prop('disabled', true);
 
                 var formData = {
-                    _token: $('input[name="_token"]').val(),
+                    _token: "{{ csrf_token() }}",
                     _method: 'PUT',
                     parcela_id: $('#parcela_id').val(),
                     emprestimo_id: $('#emprestimo_id').val()
                 };
 
-                var multa = $('#multa_atraso').val();
-                if (multa !== '') {
-                    formData.multa_atraso = multa;
+
+                var multaVal = $('#multa_atraso').val();
+                if (multaVal && multaVal !== '') {
+                    formData.multa_atraso = parseFloat(multaVal);
                 }
 
                 $.ajax({
@@ -309,13 +275,14 @@
                     data: formData,
                     success: function(response) {
                         $('#modalPagar').modal('hide');
-                        showAlert('success', 'Pagamento registrado com sucesso!');
+                        showAlert('success', response.message || 'Pagamento registrado com sucesso!');
                         if ($('#cliente_id').val()) {
                             loadEmprestimos($('#cliente_id').val());
                         }
                     },
                     error: function(xhr) {
-                        showAlert('danger', xhr.responseJSON?.message || 'Erro ao processar pagamento');
+                        var errorMsg = xhr.responseJSON?.message || 'Erro ao processar pagamento';
+                        showAlert('danger', errorMsg);
                     },
                     complete: function() {
                         submitBtn.prop('disabled', false);
@@ -324,16 +291,13 @@
             });
 
             function showAlert(type, message) {
-
                 $('.alert-dismissible').alert('close');
-
                 $('.content').prepend(`
-                <div class="alert alert-${type} alert-dismissible fade show">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `);
-
+                    <div class="alert alert-${type} alert-dismissible fade show">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `);
                 setTimeout(() => {
                     $('.alert').alert('close');
                 }, 5000);
