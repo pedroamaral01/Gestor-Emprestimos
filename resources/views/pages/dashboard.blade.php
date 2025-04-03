@@ -37,18 +37,15 @@
               <label for="status" class="form-label">Status</label>
               <select class="form-select" id="status">
                 <option value="">Todos</option>
-                <option value="ativo">Ativo</option>
-                <option value="quitado">Quitado</option>
-                <option value="atrasado">Atrasado</option>
+                @foreach($emprestimoStatus as $valor => $rotulo)
+                <option value="{{ $valor }}">{{ $rotulo }}</option>
+                @endforeach
               </select>
             </div>
             <div class="col-md-12 mt-2">
               <div class="d-flex justify-content-end">
-                <button id="btn-filtrar" class="btn btn-primary me-2">
-                  <i class="fas fa-filter"></i> Filtrar
-                </button>
                 <button id="btn-limpar" class="btn btn-outline-secondary">
-                  <i class="fas fa-broom"></i> Limpar
+                  <i class="fas fa-broom"></i> Limpar Filtros
                 </button>
               </div>
             </div>
@@ -70,7 +67,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Os dados serão inseridos aqui via JavaScript -->
+                  <!-- Dados do JavaScript -->
                 </tbody>
               </table>
           </div>
@@ -79,10 +76,41 @@
     </div>
   </div>
 
+  <!-- Modal de Garantia -->
+  <div class="modal fade" id="modalGarantia" tabindex="-1" aria-labelledby="modalGarantiaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalGarantiaLabel">Detalhes da Garantia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Tipo:</strong> <span id="garantia-tipo"></span></p>
+          <p><strong>Descrição:</strong> <span id="garantia-descricao"></span></p>
+          <p><strong>Valor Avaliado:</strong> R$ <span id="garantia-valor"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     $(document).ready(function() {
-      // Carregar dados iniciais (todos os empréstimos)
-      carregarEmprestimos();
+
+      let todosEmprestimos = [];
+
+      function getTodosClientesIds() {
+        return $('#cliente option')
+          .map(function() {
+            return $(this).val();
+          })
+          .get()
+          .filter(id => id !== "");
+      }
+
+      carregarEmprestimos(getTodosClientesIds());
 
       function carregarEmprestimos(clienteId = null) {
         $.ajax({
@@ -94,38 +122,68 @@
           },
           beforeSend: function() {
             $('#tabela-emprestimos tbody').html(`
-                    <tr>
-                        <td colspan="6" class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Carregando...</span>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
           },
           success: function(response) {
             if (response.success) {
-              renderizarEmprestimos(response.emprestimos);
+              todosEmprestimos = response.emprestimos;
+              aplicarFiltros();
             } else {
               $('#tabela-emprestimos tbody').html(`
-                        <tr>
-                            <td colspan="6" class="text-center">Nenhum empréstimo encontrado</td>
-                        </tr>
-                    `);
+                            <tr>
+                                <td colspan="7" class="text-center">Nenhum empréstimo encontrado</td>
+                            </tr>
+                        `);
             }
           },
           error: function() {
             $('#tabela-emprestimos tbody').html(`
-                    <tr>
-                        <td colspan="6" class="text-center text-danger">Erro ao carregar empréstimos</td>
-                    </tr>
-                `);
+                        <tr>
+                            <td colspan="7" class="text-center text-danger">Erro ao carregar empréstimos</td>
+                        </tr>
+                    `);
           }
         });
       }
 
+      function aplicarFiltros() {
+        const dataInicio = $('#data-inicio').val();
+        const dataFim = $('#data-fim').val();
+        const status = $('#status').val();
+
+        let emprestimosFiltrados = [...todosEmprestimos];
+
+        // Filtro por data
+        if (dataInicio) {
+          const inicio = new Date(dataInicio);
+          emprestimosFiltrados = emprestimosFiltrados.filter(e => {
+            return new Date(e.data_contratacao) >= inicio;
+          });
+        }
+
+        if (dataFim) {
+          const fim = new Date(dataFim);
+          emprestimosFiltrados = emprestimosFiltrados.filter(e => {
+            return new Date(e.data_contratacao) <= fim;
+          });
+        }
+
+        // Filtro por status
+        if (status) {
+          emprestimosFiltrados = emprestimosFiltrados.filter(e => e.status === status);
+        }
+
+        renderizarEmprestimos(emprestimosFiltrados);
+      }
+
       function renderizarEmprestimos(emprestimos) {
-        console.log(emprestimos);
         var tbody = $('#tabela-emprestimos tbody').empty();
 
         emprestimos.forEach(function(emprestimo) {
@@ -135,70 +193,78 @@
             'atrasado': 'danger'
           } [emprestimo.status] || 'secondary';
 
-          var dataFormatada = new Date(emprestimo.data_contratacao).toLocaleDateString('pt-BR');
           var parcelasPagas = emprestimo.parcelas.filter(p => p.status.toLowerCase() === 'pago').length;
           var parcelasText = `${parcelasPagas}/${emprestimo.parcelas.length || 0}`;
 
-          // Linha principal
           var tr = $(`
-    <tr>
-        <td>#${emprestimo.id}</td>
-        <td>${emprestimo.cliente_nome}</td>
-        <td>R$ ${parseFloat(emprestimo.valor_total).toFixed(2).replace('.', ',')}</td>
-        <td>${dataFormatada}</td>
-        <td>
-            <span class="badge bg-${statusClass}">
-                ${emprestimo.status.toUpperCase()}
-            </span>
-        </td>
-        <td>${parcelasText}</td>
-        <td>
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-primary btn-ver-parcelas" data-id="${emprestimo.id}" title="Ver parcelas">
-                    <i class="fas fa-list"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-warning btn-ver-garantia" data-emprestimo-id="${emprestimo.id}" title="Ver garantias">
-                    <i class="fas fa-shield-alt"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-`);
+                    <tr>
+                        <td>#${emprestimo.id}</td>
+                        <td>${emprestimo.cliente_nome}</td>
+                        <td>R$ ${parseFloat(emprestimo.valor_total).toFixed(2).replace('.', ',')}</td>
+                        <td>${new Date(emprestimo.data_contratacao + "T00:00:00").toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <span class="badge bg-${statusClass}">
+                                ${emprestimo.status.toUpperCase()}
+                            </span>
+                        </td>
+                        <td>${parcelasText}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary btn-ver-parcelas" data-id="${emprestimo.id}" title="Ver parcelas">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                                ${(emprestimo.garantia_tipo || emprestimo.garantia_descricao || emprestimo.garantia_valor) ? `
+                                    <button class="btn btn-sm btn-outline-warning btn-ver-garantia" 
+                                        data-tipo="${emprestimo.garantia_tipo || 'Não informado'}"
+                                        data-descricao="${emprestimo.garantia_descricao || 'Não informado'}"
+                                        data-valor="${emprestimo.garantia_valor || '0.00'}"
+                                        title="Ver garantias">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `);
 
           tr.find('.btn-ver-garantia').click(function() {
-            var emprestimoId = $(this).data('emprestimo-id');
-            abrirModalGarantia(emprestimoId);
+            const tipo = $(this).data('tipo');
+            const descricao = $(this).data('descricao');
+            const valor = $(this).data('valor');
+
+            $('#garantia-tipo').text(tipo);
+            $('#garantia-descricao').text(descricao);
+            $('#garantia-valor').text(parseFloat(valor).toFixed(2).replace('.', ','));
+            $('#modalGarantia').modal('show');
           });
 
-          // Linha de detalhes (parcelas)
           var trDetalhes = $(`
-                <tr class="detalhes-parcelas" id="detalhes-${emprestimo.id}" style="display: none;">
-                    <td colspan="6">
-                        <div class="p-3">
-                            <h6>Parcelas do Empréstimo #${emprestimo.id}</h6>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Parcela</th>
-                                        <th>Valor</th>
-                                        <th>Vencimento</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${renderizarParcelas(emprestimo.parcelas)}
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            `);
+                    <tr class="detalhes-parcelas" id="detalhes-${emprestimo.id}" style="display: none;">
+                        <td colspan="7">
+                            <div class="p-3">
+                                <h6>Parcelas do Empréstimo #${emprestimo.id}</h6>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Parcela</th>
+                                            <th>Valor</th>
+                                            <th>Vencimento</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${renderizarParcelas(emprestimo.parcelas)}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                `);
 
           tbody.append(tr);
           tbody.append(trDetalhes);
         });
 
-        // Adiciona evento de clique para mostrar/ocultar parcelas
         $('.btn-ver-parcelas').click(function() {
           var id = $(this).data('id');
           $('#detalhes-' + id).toggle();
@@ -214,34 +280,45 @@
             'atrasado': 'danger'
           } [parcela.status] || 'secondary';
 
-          var dataVencimento = new Date(parcela.data_vencimento).toLocaleDateString('pt-BR');
+          dataConvertida = new Date(parcela.data_vencimento + "T00:00:00").toLocaleDateString('pt-BR');
 
           html += `
-                <tr>
-                    <td>${parcela.numero_parcela}</td>
-                    <td>R$ ${parseFloat(parcela.valor_parcela).toFixed(2).replace('.', ',')}</td>
-                    <td>${dataVencimento}</td>
-                    <td>
-                        <span class="badge bg-${statusClass}">
-                            ${parcela.status.toUpperCase()}
-                        </span>
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td>${parcela.numero_parcela}</td>
+                        <td>R$ ${parseFloat(parcela.valor_parcela).toFixed(2).replace('.', ',')}</td>
+                        <td>${new Date(parcela.data_vencimento).toISOString().split('T')[0].split('-').reverse().join('/')}</td>
+                        <td>
+                            <span class="badge bg-${statusClass}">
+                                ${parcela.status.toUpperCase()}
+                            </span>
+                        </td>
+                    </tr>
+                `;
         });
         return html;
       }
 
-      // Filtrar por cliente
+      // Eventos dos filtros
       $('#cliente').change(function() {
         var clienteId = $(this).val();
+        if (clienteId === '') {
+          clienteId = getTodosClientesIds();
+        }
         carregarEmprestimos(clienteId);
+      });
+
+      // Aplica filtros quando mudar status ou datas
+      $('#status, #data-inicio, #data-fim').change(function() {
+        aplicarFiltros();
       });
 
       // Limpar filtros
       $('#btn-limpar').click(function() {
+        $('#data-inicio').val('');
+        $('#data-fim').val('');
+        $('#status').val('');
         $('#cliente').val('');
-        carregarEmprestimos(); // Carrega todos sem filtro
+        carregarEmprestimos(getTodosClientesIds());
       });
     });
   </script>

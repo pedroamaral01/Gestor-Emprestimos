@@ -26,9 +26,7 @@ use App\Http\Requests\CriaEmprestimoRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-
-
-
+use function PHPUnit\Framework\isArray;
 
 class EmprestimoController extends Controller
 {
@@ -51,7 +49,8 @@ class EmprestimoController extends Controller
         return view(
             'pages.dashboard',
             [
-                'clientes' => $this->clienteRepository->getClientsByUser()
+                'clientes' => $this->clienteRepository->getClientsByUser(),
+                'emprestimoStatus' => EmprestimoStatus::preencherSelect()
             ]
         );
     }
@@ -210,7 +209,13 @@ class EmprestimoController extends Controller
 
     public function listaEmprestimos(Request $request)
     {
-        $emprestimos = $this->emprestimoRepository->getEmprestimoByClientes([$request->cliente_id], $request->somente_nao_quitados);
+        $arrayClientes = $request->cliente_id;
+
+        if (!is_array($arrayClientes)) {
+            $arrayClientes = [$arrayClientes];
+        }
+
+        $emprestimos = $this->emprestimoRepository->getEmprestimoByClientes($arrayClientes, $request->somente_nao_quitados);
 
         return response()->json([
             'success' => true,
@@ -218,9 +223,6 @@ class EmprestimoController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Emprestimo $emprestimo)
     {
         //

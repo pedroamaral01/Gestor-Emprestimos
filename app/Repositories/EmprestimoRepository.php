@@ -51,6 +51,7 @@ class EmprestimoRepository
                 ->orderBy('numero_parcela', 'asc');
         }])
             ->join('clientes', 'emprestimos.cliente_id', '=', 'clientes.id')
+            ->leftJoin('garantias', 'emprestimos.id', '=', 'garantias.emprestimo_id')
             ->whereIn('emprestimos.cliente_id', $clientesIds)
             ->when($somenteNaoQuitados, function ($query) {
                 $query->where('emprestimos.status', '!=', EmprestimoStatus::QUITADO);
@@ -66,8 +67,11 @@ class EmprestimoRepository
                 'emprestimos.tipo_juros',
                 'emprestimos.data_contratacao',
                 'emprestimos.status',
+                'garantias.descricao as garantia_descricao',
+                'garantias.valor_avaliado as garantia_valor',
+                'garantias.tipo as garantia_tipo',
             ])
-            ->orderBy('emprestimos.data_contratacao', 'desc')
+            ->orderBy('emprestimos.id', 'desc')
             ->get();
     }
 }
