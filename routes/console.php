@@ -34,4 +34,4 @@ Schedule::call(function () {
     if ($parcelasAfetadas > 0) {
         Log::info($parcelasAfetadas . ' parcelas marcadas como "atrasado".');
     }
-})->day();
+})->daily();
